@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
-            $table->string('domain')->nullable()->unique();
+            $table->string('slug')->unique()->comment('Subdomain identifier');
+            $table->string('domain')->nullable()->unique()->comment('Custom domain if applicable');
             $table->boolean('is_active')->default(true);
 
             $table->timestamp('created_at')->useCurrent();

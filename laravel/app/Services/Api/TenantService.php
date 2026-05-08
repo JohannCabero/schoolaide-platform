@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\BaseService;
+use App\Services\Api\AuditService;
 use App\Traits\HasTenantPermissionScope;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -15,6 +16,8 @@ use Spatie\Permission\Models\Role;
 class TenantService extends BaseService
 {
     use HasTenantPermissionScope;
+
+    public function __construct(private readonly AuditService $auditService) {}
 
     public function profile()
     {
@@ -50,6 +53,10 @@ class TenantService extends BaseService
 
         $admin->assignRole($adminRole);
 
+        $adminId = $admin->id;
+        $this->auditService->log('created', $tenant, null, $tenant->toArray(), $adminId);
+        $this->auditService->log('created', $admin, null, $admin->toArray(), $adminId);
+
         $this->code = 201;
         $token = $admin->createToken('api-token')->accessToken;
 
@@ -71,9 +78,13 @@ class TenantService extends BaseService
     public function update(TenantRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
-            $tenant = app('currentTenant');
+            $tenant    = app('currentTenant');
+            $oldTenant = $tenant->toArray();
+            $userId = auth('api')->id();
 
             $tenant->update($request->toArray());
+
+            $this->auditService->log('updated', $tenant, $oldTenant, $tenant->fresh()->toArray(), $userId);
 
             return new TenantResource($tenant->fresh());
         });

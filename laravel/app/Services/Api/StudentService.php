@@ -11,13 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 class StudentService extends BaseService
 {
-    private $student;
-
-
-    public function __construct(Student $student)
-    {
-        $this->student = $student;
-    }
+    public function __construct(private readonly Student $student, private readonly AuditService $auditService) {}
 
     public function index(StudentRequest $request)
     {
@@ -74,6 +68,9 @@ class StudentService extends BaseService
                 ])
             );
 
+            $userId = auth('api')->id();
+            $this->auditService->log('created', $student, null, $student->toArray(), $userId);
+
             $this->code = 201;
             $this->invalidateCache($student->id);
 
@@ -85,8 +82,12 @@ class StudentService extends BaseService
     {
         return $this->executeFunction(function () use ($request, $studentId) {
             $student = $this->student->findOrFail($studentId);
+            $oldStudent = $student->toArray();
 
             $student->update($request->validated());
+
+            $userId = auth('api')->id();
+            $this->auditService->log('updated', $student, $oldStudent, $student->fresh()->toArray(), $userId);
 
             $this->invalidateCache($student->id);
 

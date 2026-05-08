@@ -6,6 +6,7 @@ use App\Http\Requests\AuthRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\BaseService;
+use App\Services\Api\AuditService;
 use App\Traits\HasTenantPermissionScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,8 @@ use Spatie\Permission\Models\Role;
 class AuthService extends BaseService
 {
     use HasTenantPermissionScope;
+
+    public function __construct(private readonly AuditService $auditService) {}
 
     public function me(Request $request)
     {
@@ -55,6 +58,8 @@ class AuthService extends BaseService
 
             $user->assignRole($role);
 
+            $this->auditService->log('created', $user, null, $user->toArray(), $user->id);
+
             $token = $user->createToken('api-token')->accessToken;
 
             $this->code = 201;
@@ -84,6 +89,8 @@ class AuthService extends BaseService
         $user->tokens()->delete();
         $token = $user->createToken('api-token')->accessToken;
 
+        $this->auditService->log('login', $user, null, null, $user->id);
+
         return $this->normalizedResponse(200, 'Success', [
             'token' => $token,
             'user'  => new UserResource($user),
@@ -93,7 +100,12 @@ class AuthService extends BaseService
     public function logout(Request $request)
     {
         return $this->executeFunction(function () use ($request) {
-            $request->user()->token()->revoke();
+            $user   = $request->user();
+            $userId = $user->id;
+
+            $user->token()->revoke();
+
+            $this->auditService->log('logout', $user, null, null, $userId);
 
             return 'Logged out successfully.';
         });

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('auditable_type');
             $table->unsignedBigInteger('auditable_id');
-            $table->enum('action', ['created', 'updated', 'deleted', 'restored', 'approved', 'rejected']);
+            $table->enum('action', ['created', 'updated', 'deleted', 'restored', 'approved', 'rejected', 'login', 'logout']);
             $table->json('old_values')->nullable()->comment('State before change');
             $table->json('new_values')->nullable()->comment('State after change');
             $table->string('ip_address', 45)->nullable();
