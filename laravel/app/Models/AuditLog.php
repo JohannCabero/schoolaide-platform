@@ -56,12 +56,12 @@ class AuditLog extends Model
         return $this->morphTo();
     }
 
-    public function searchByAction($query, string $action)
+    public function scopeByAction($query, string $action)
     {
         return $query->where('action', $action);
     }
 
-    public function searchByEntity($query, string $type, int $id)
+    public function scopeByEntity($query, string $type, int $id)
     {
         return $query->where([
             'auditable_type' => $type,
@@ -69,7 +69,7 @@ class AuditLog extends Model
         ]);
     }
 
-    public function searchByDateRange($query, ?string $from, ?string $to)
+    public function scopeByDateRange($query, ?string $from, ?string $to)
     {
         if ($from) {
             $query->whereDate('created_at', '>=', $from);

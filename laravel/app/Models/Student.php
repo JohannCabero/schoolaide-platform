@@ -55,12 +55,12 @@ class Student extends Model
         return "{$this->first_name} {$this->last_name}";
     }
 
-    public function searchActive($query)
+    public function scopeActive($query)
     {
         return $query->where('status', 'active');
     }
 
-    public function searchByStudentNumber($query, string $studentNumber)
+    public function scopeByStudentNumber($query, string $studentNumber)
     {
         return $query->where('student_number', $studentNumber);
     }

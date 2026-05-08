@@ -38,7 +38,7 @@ class ServiceType extends Model
         return $this->hasMany(ServiceRequest::class);
     }
 
-    public function searchActive($query)
+    public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }

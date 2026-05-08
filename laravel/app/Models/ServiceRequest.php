@@ -60,17 +60,17 @@ class ServiceRequest extends Model
         return $this->belongsTo(User::class, 'processed_by')->withoutGlobalScope(TenantScope::class);
     }
 
-    public function searchPending($query)
+    public function scopePending($query)
     {
         return $query->where('status', 'pending');
     }
 
-    public function searchByStatus($query, string $status)
+    public function scopeByStatus($query, string $status)
     {
         return $query->where('status', $status);
     }
 
-    public function searchByDateRange($query, ?string $from, ?string $to)
+    public function scopeByDateRange($query, ?string $from, ?string $to)
     {
         if ($from) {
             $query->whereDate('created_at', '>=', $from);
@@ -82,7 +82,7 @@ class ServiceRequest extends Model
         return $query;
     }
 
-    public function searchAssignedTo($query, int $userId)
+    public function scopeAssignedTo($query, int $userId)
     {
         return $query->where('assigned_to', $userId);
     }

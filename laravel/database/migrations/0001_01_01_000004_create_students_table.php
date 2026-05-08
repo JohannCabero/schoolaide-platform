@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('student_number');
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->nullable();
+            $table->string('email');
             $table->string('phone')->nullable();
             $table->date('birth_date')->nullable();
             $table->enum('status', ['active', 'inactive', 'graduated', 'suspended'])->default('active');

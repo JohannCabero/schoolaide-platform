@@ -12,6 +12,7 @@
         "laravel/passport": "^13.7",
         "laravel/tinker": "^2.10.1",
         "maatwebsite/excel": "^1.1",
+        "propaganistas/laravel-phone": "^6.0",
         "spatie/laravel-permission": "^6.25"
     },
     "require-dev": {
