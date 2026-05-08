@@ -30,6 +30,11 @@ class Student extends Model
         'birth_date' => 'date',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new TenantScope());
+    }
+
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);

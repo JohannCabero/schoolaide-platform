@@ -30,6 +30,11 @@ class ServiceRequest extends Model
         'processed_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new TenantScope());
+    }
+
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
@@ -37,22 +42,22 @@ class ServiceRequest extends Model
 
     public function student(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Student::class)->withoutGlobalScope(TenantScope::class);
     }
 
     public function serviceType(): BelongsTo
     {
-        return $this->belongsTo(ServiceType::class);
+        return $this->belongsTo(ServiceType::class)->withoutGlobalScope(TenantScope::class);
     }
 
     public function assignedTo(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'assigned_to');
+        return $this->belongsTo(User::class, 'assigned_to')->withoutGlobalScope(TenantScope::class);
     }
 
     public function processedBy(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'processed_by');
+        return $this->belongsTo(User::class, 'processed_by')->withoutGlobalScope(TenantScope::class);
     }
 
     public function searchPending($query)

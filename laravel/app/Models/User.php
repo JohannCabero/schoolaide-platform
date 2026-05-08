@@ -54,6 +54,11 @@ class User extends Authenticatable
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new TenantScope());
+    }
+
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);

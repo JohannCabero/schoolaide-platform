@@ -14,13 +14,15 @@ return new class extends Migration
         Schema::create('tenants', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('domain')->unique();
+            $table->string('slug')->unique();
+            $table->string('domain')->nullable()->unique();
             $table->boolean('is_active')->default(true);
 
             $table->timestamp('created_at')->useCurrent();
             $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
             $table->softDeletes();
 
+            $table->index('slug');
             $table->index('is_active');
         });
     }

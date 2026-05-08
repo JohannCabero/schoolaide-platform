@@ -31,6 +31,11 @@ class ImportLog extends Model
         'completed_at' => 'datetime',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new TenantScope());
+    }
+
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);

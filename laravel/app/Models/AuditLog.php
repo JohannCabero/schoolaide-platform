@@ -29,6 +29,8 @@ class AuditLog extends Model
 
     protected static function booted(): void
     {
+        static::addGlobalScope(new TenantScope());
+
         // Prevent any update or delete operations
         static::updating(function () {
             throw new \RuntimeException('Audit logs are immutable and cannot be updated.');
