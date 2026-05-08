@@ -8,11 +8,14 @@ use App\Http\Resources\UserResource;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\BaseService;
+use App\Traits\HasTenantPermissionScope;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
 class TenantService extends BaseService
 {
+    use HasTenantPermissionScope;
+
     public function profile()
     {
         return $this->executeFunction(function () {
@@ -32,10 +35,11 @@ class TenantService extends BaseService
         ]);
 
         app()->instance('currentTenant', $tenant);
+        $this->setTenantPermissionScope($tenant->id);
 
-        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api', 'tenant_id' => $tenant->id]);
-        $staffRole = Role::create(['name' => 'staff', 'guard_name' => 'api', 'tenant_id' => $tenant->id]);
-        $studentRole = Role::create(['name' => 'student', 'guard_name' => 'api', 'tenant_id' => $tenant->id]);
+        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api']);
+        $staffRole = Role::create(['name' => 'staff', 'guard_name' => 'api']);
+        $studentRole = Role::create(['name' => 'student', 'guard_name' => 'api']);
 
         $admin = User::create([
             'tenant_id' => $tenant->id,

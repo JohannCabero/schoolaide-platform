@@ -6,6 +6,7 @@ use App\Http\Requests\AuthRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\BaseService;
+use App\Traits\HasTenantPermissionScope;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -13,6 +14,8 @@ use Spatie\Permission\Models\Role;
 
 class AuthService extends BaseService
 {
+    use HasTenantPermissionScope;
+
     public function me(Request $request)
     {
         return $this->executeFunction(function () use ($request) {
@@ -35,6 +38,7 @@ class AuthService extends BaseService
             ]);
 
             $roleName = $request->input('role', 'student');
+            $this->setTenantPermissionScope($tenant->id);
 
             $role = Role::where('name', $roleName)
                 ->where('guard_name', 'api')
@@ -65,6 +69,8 @@ class AuthService extends BaseService
     public function login(AuthRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
+            $tenant = app('currentTenant');
+
             $user = User::where('email', $request->email)
                 ->where('is_active', true)
                 ->first();
@@ -75,6 +81,7 @@ class AuthService extends BaseService
                 ]);
             }
 
+            $this->setTenantPermissionScope($tenant->id);
             $user->tokens()->delete();
             $token = $user->createToken('api-token')->accessToken;
 

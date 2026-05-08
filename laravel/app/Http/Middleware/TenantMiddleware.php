@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Tenant;
 use Closure;
 use Illuminate\Http\Request;
+use Spatie\Permission\PermissionRegistrar;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantMiddleware
@@ -29,6 +30,8 @@ class TenantMiddleware
         app()->instance('currentTenant', $tenant);
 
         $request->attributes->set('tenant', $tenant);
+
+        app(PermissionRegistrar::class)->setPermissionsTeamId($tenant->id);
 
         return $next($request);
     }
