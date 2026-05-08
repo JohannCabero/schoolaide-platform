@@ -13,7 +13,16 @@ use Spatie\Permission\Models\Role;
 
 class AuthService extends BaseService
 {
-    public function register(AuthRequest $request)
+    public function me(Request $request)
+    {
+        return $this->executeFunction(function () use ($request) {
+            $user = $request->user();
+
+            return new UserResource($user);
+        });
+    }
+
+    public function registerUser(AuthRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
             $tenant = app('currentTenant');
@@ -82,15 +91,6 @@ class AuthService extends BaseService
             $request->user()->token()->revoke();
 
             return 'Logged out successfully.';
-        });
-    }
-
-    public function me(Request $request)
-    {
-        return $this->executeFunction(function () use ($request) {
-            $user = $request->user();
-
-            return new UserResource($user);
         });
     }
 }

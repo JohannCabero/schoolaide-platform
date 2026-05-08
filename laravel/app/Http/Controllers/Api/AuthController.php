@@ -11,9 +11,14 @@ class AuthController extends Controller
 {
     public function __construct(private readonly AuthService $service) {}
 
-    public function register(AuthRequest $request)
+    public function me(Request $request)
     {
-        return $this->service->register($request);
+        return $this->service->me($request);
+    }
+
+    public function registerUser(AuthRequest $request)
+    {
+        return $this->service->registerUser($request);
     }
 
     public function login(AuthRequest $request)
@@ -24,10 +29,5 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         return $this->service->logout($request);
-    }
-
-    public function me(Request $request)
-    {
-        return $this->service->me($request);
     }
 }

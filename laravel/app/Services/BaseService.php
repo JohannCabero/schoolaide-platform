@@ -15,27 +15,31 @@ class BaseService
     public function executeFunction(callable $function)
     {
         try {
-            DB::beginTransaction();
-
             $request = app(Request::class);
             $routeId = $request->route('id');
             $reqBody = $request->all();
             $uriPath = $request->path();
             $reqMethod = $request->getMethod();
 
-            $data = call_user_func($function);
-            $this->result = $data;
+            $this->result = DB::transaction(function () use ($function) {
+                $data = call_user_func($function);
 
-            DB::commit();
+                if (isset($data['error'])) {
+                    throw new \Exception($data['error']);
+                }
+
+                return $data;
+            });
 
             return $this->normalizedResponse($this->code, $this->message, $this->result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->code = 500;
             $this->result = $e->getMessage();
 
-            DB::rollback();
-
-            Log::error('Server Error', ['trace' => $e->getTraceAsString()]);
+            Log::error('Server Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
             return $this->normalizedResponse($this->code, 'Error', $this->result);
         }

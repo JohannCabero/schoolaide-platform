@@ -36,20 +36,23 @@ class TenantMiddleware
     private function resolveTenant(Request $request): ?Tenant
     {
         $slug = $request->header('X-Tenant');
-
-        if (! $slug) {
-            $host = $request->getHost();
-            $parts = explode('.', $host);
-
-            if (count($parts) >= 3) {
-                $slug = $parts[0];
-            }
+        if ($slug) {
+            return Tenant::where('slug', $slug)->first();
         }
 
-        if (! $slug) {
-            return null;
+        $host = $request->getHost();
+
+        $tenant = Tenant::where('domain', $host)->first();
+        if ($tenant) {
+            return $tenant;
         }
 
-        return Tenant::where('slug', $slug)->first();
+        $parts = explode('.', $host);
+        if (count($parts) >= 3) {
+            $subdomain = $parts[0];
+            return Tenant::where('slug', $subdomain)->first();
+        }
+
+        return null;
     }
 }

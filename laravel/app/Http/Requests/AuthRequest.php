@@ -16,14 +16,14 @@ class AuthRequest extends BaseRequest
     public function rules()
     {
         switch ($this->path()) {
-            case 'api/register':
+            case 'api/auth/register':
                 return [
                     'name' => ['required', 'string',],
                     'email' => ['required', 'email', Rule::unique('students', 'email')->where('tenant_id', app('currentTenant')->id),],
                     'password' => ['required', 'string', 'min:8', 'confirmed'],
                     'role' => ['nullable', 'string', 'in:student,staff'],
                 ];
-            case 'api/login':
+            case 'api/auth/login':
                 return [
                     'email' => ['required', 'email',],
                     'password' => ['required', 'string',],
