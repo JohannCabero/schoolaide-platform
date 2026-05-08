@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Services;
+namespace App\Services\Api;
 
 use App\Http\Requests\AuthRequest;
 use App\Http\Resources\UserResource;
@@ -68,28 +68,26 @@ class AuthService extends BaseService
 
     public function login(AuthRequest $request)
     {
-        return $this->executeFunction(function () use ($request) {
-            $tenant = app('currentTenant');
+        $tenant = app('currentTenant');
 
-            $user = User::where('email', $request->email)
-                ->where('is_active', true)
-                ->first();
+        $user = User::where('email', $request->email)
+            ->where('is_active', true)
+            ->first();
 
-            if (! $user || ! Hash::check($request->password, $user->password)) {
-                throw ValidationException::withMessages([
-                    'error' => ['The provided credentials are incorrect.'],
-                ]);
-            }
+        if (! $user || ! Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'error' => ['The provided credentials are incorrect.'],
+            ]);
+        }
 
-            $this->setTenantPermissionScope($tenant->id);
-            $user->tokens()->delete();
-            $token = $user->createToken('api-token')->accessToken;
+        $this->setTenantPermissionScope($tenant->id);
+        $user->tokens()->delete();
+        $token = $user->createToken('api-token')->accessToken;
 
-            return [
-                'token' => $token,
-                'user'  => new UserResource($user),
-            ];
-        });
+        return $this->normalizedResponse(200, 'Success', [
+            'token' => $token,
+            'user'  => new UserResource($user),
+        ]);
     }
 
     public function logout(Request $request)

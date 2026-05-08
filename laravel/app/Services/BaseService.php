@@ -45,7 +45,7 @@ class BaseService
         }
     }
 
-    private function normalizedResponse($code, $message, $result)
+    protected function normalizedResponse($code, $message, $result)
     {
         return response()->json([
             'code' => $code,

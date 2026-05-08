@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Api\Services;
+namespace App\Services\Api;
 
 use App\Http\Requests\StudentRequest;
 use App\Http\Resources\StudentPagination;
@@ -53,12 +53,14 @@ class StudentService extends BaseService
     public function show(int $studentId)
     {
         return $this->executeFunction(function () use ($studentId) {
-            Cache::tags(["tenant:" . app('currentTenant')?->studentId . ":students"])
+            $student = Cache::tags(["tenant:" . app('currentTenant')?->id . ":students"])
                 ->remember(
                     "student:{$studentId}",
                     3600,
                     fn() => $this->student->with('user')->findOrFail($studentId)
                 );
+
+            return new StudentResource($student);
         });
     }
 
@@ -66,8 +68,10 @@ class StudentService extends BaseService
     {
         return $this->executeFunction(function () use ($request) {
             $student = $this->student->create(
-                array_merge($request->validated(), ['tenant_id' => app('currentTenant')->id]),
-                $request->user()->id
+                array_merge($request->validated(), [
+                    'tenant_id' => app('currentTenant')->id,
+                    'user_id'   => $request->user()->id,
+                ])
             );
 
             $this->code = 201;
@@ -82,7 +86,7 @@ class StudentService extends BaseService
         return $this->executeFunction(function () use ($request, $studentId) {
             $student = $this->student->findOrFail($studentId);
 
-            $student->update($request->toArray());
+            $student->update($request->validated());
 
             $this->invalidateCache($student->id);
 

@@ -15,7 +15,7 @@ class StudentPagination extends ResourceCollection
     public function toArray(Request $request): array
     {
         return [
-            'currrent_page' => $this->currentPage(),
+            'current_page' => $this->currentPage(),
             'data' => StudentResource::collection($this->collection),
             'first_page_url' => $this->url(1),
             'from' => ($this->currentPage() - 1) * $this->perPage() + 1,

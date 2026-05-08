@@ -36,6 +36,7 @@ class StudentRequest extends BaseRequest
                     'year_level' => ['sometimes', 'string',],
                     'status' => ['sometimes', 'string', 'in:active,inactive,graduated,suspended',],
                 ];
+            case 'PATCH':
             case 'PUT':
                 return [
                     'student_number' => ['sometimes', 'filled', 'string', Rule::unique('students', 'student_number')->where('tenant_id', app('currentTenant')->id),],

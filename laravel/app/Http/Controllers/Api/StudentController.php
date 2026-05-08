@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Api\Services\StudentService;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentRequest;
+use App\Services\Api\StudentService;
 
 class StudentController extends Controller
 {
