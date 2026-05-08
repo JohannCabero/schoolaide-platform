@@ -53,12 +53,12 @@ class StudentService extends BaseService
     public function show(int $studentId)
     {
         return $this->executeFunction(function () use ($studentId) {
-            $student = Cache::tags(["tenant:" . app('currentTenant')?->id . ":students"])
-                ->remember(
-                    "student:{$studentId}",
-                    3600,
-                    fn() => $this->student->with('user')->findOrFail($studentId)
-                );
+            $tenantId = app('currentTenant')?->id;
+            $student  = Cache::remember(
+                "tenant:{$tenantId}:student:{$studentId}",
+                3600,
+                fn() => $this->student->with('user')->findOrFail($studentId)
+            );
 
             return new StudentResource($student);
         });
@@ -98,12 +98,11 @@ class StudentService extends BaseService
     {
         $tenantId = app('currentTenant')?->id;
 
-        Cache::tags(["tenant:{$tenantId}:students"])->forget("student:{$id}");
+        Cache::forget("tenant:{$tenantId}:student:{$id}");
     }
 
     public function invalidateAllStudentCache()
     {
-        $tenantId = app('currentTenant')?->id;
-        Cache::tags(["tenant:{$tenantId}:students"])->flush();
+        Cache::flush();
     }
 }
