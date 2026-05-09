@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Gate;
 
 class ServiceRequestService extends BaseService
 {
-    public function __construct(private readonly ServiceRequest $serviceRequest, private readonly AuditService $auditService) {}
+    public function __construct(private readonly ServiceRequest $serviceRequest) {}
 
     public function index(ServiceReqRequest $request)
     {
@@ -64,7 +64,6 @@ class ServiceRequestService extends BaseService
             Gate::authorize('create', ServiceRequest::class);
 
             $tenantId = app('currentTenant')->id;
-            $userId = auth('api')->id();
 
             $serviceReq = $this->serviceRequest->create(
                 array_merge($request->validated(), [
@@ -76,8 +75,6 @@ class ServiceRequestService extends BaseService
 
             $this->code = 201;
 
-            $this->auditService->log('created', $serviceReq, null, $serviceReq->toArray(), $userId);
-
             return new ServiceRequestResource($serviceReq->load(['student', 'serviceType']));
         });
     }
@@ -85,9 +82,14 @@ class ServiceRequestService extends BaseService
     public function update(ServiceReqRequest $request, int $id)
     {
         return $this->executeFunction(function () use ($request, $id) {
-            $userId = auth('api')->id();
             $lockedServiceReq = $this->serviceRequest->lockForUpdate()->findOrFail($id);
             Gate::authorize('update', $lockedServiceReq);
+
+            if ($lockedServiceReq->version !== $request->integer('version')) {
+                throw new ConcurrencyConflictException(
+                    'The request was modified since you last viewed it. Please refresh and try again.'
+                );
+            }
 
             if (! $lockedServiceReq->isPending()) {
                 throw new InvalidRequestStateException(
@@ -95,11 +97,10 @@ class ServiceRequestService extends BaseService
                 );
             }
 
-            $oldServiceReq = $lockedServiceReq->toArray();
-
-            $lockedServiceReq->update(array_merge($request->validated(), ['version' => $lockedServiceReq->version + 1]));
-
-            $this->auditService->log('updated', $lockedServiceReq, $oldServiceReq, $lockedServiceReq->toArray(), $userId);
+            $lockedServiceReq->update(array_merge(
+                collect($request->validated())->except('version')->toArray(),
+                ['version' => $lockedServiceReq->version + 1]
+            ));
 
             return new ServiceRequestResource($lockedServiceReq->fresh(['student', 'serviceType', 'assignedTo']));
         });
@@ -125,8 +126,6 @@ class ServiceRequestService extends BaseService
                 );
             }
 
-            $oldServiceReq = $lockedServiceReq->toArray();
-
             $lockedServiceReq->update([
                 'status' => 'approved',
                 ...($request->notes ? ['processing_notes' => $request->notes] : []),
@@ -134,8 +133,6 @@ class ServiceRequestService extends BaseService
                 'processed_at' => now(),
                 'version' => $lockedServiceReq->version + 1,
             ]);
-
-            $this->auditService->log('approved', $lockedServiceReq, $oldServiceReq, $lockedServiceReq->toArray(), $userId);
 
             return new ServiceRequestResource($lockedServiceReq->fresh(['student', 'serviceType', 'assignedTo', 'processedBy']));
         });
@@ -161,8 +158,6 @@ class ServiceRequestService extends BaseService
                 );
             }
 
-            $oldServiceReq = $lockedServiceReq->toArray();
-
             $lockedServiceReq->update([
                 'status' => 'rejected',
                 ...($request->notes ? ['processing_notes' => $request->notes] : []),
@@ -171,23 +166,15 @@ class ServiceRequestService extends BaseService
                 'version' => $lockedServiceReq->version + 1,
             ]);
 
-            $this->auditService->log('rejected', $lockedServiceReq, $oldServiceReq, $lockedServiceReq->toArray(), $userId);
-
             return new ServiceRequestResource($lockedServiceReq->fresh(['student', 'serviceType', 'assignedTo', 'processedBy']));
         });
     }
 
-    /**
-     * Soft-delete a service request (admin only).
-     */
     public function destroy(int $id)
     {
         return $this->executeFunction(function () use ($id) {
-            $userId = auth('api')->id();
             $serviceReq = $this->serviceRequest->findOrFail($id);
             Gate::authorize('delete', $serviceReq);
-
-            $this->auditService->log('deleted', $serviceReq, $serviceReq->toArray(), null, $userId);
 
             $serviceReq->delete();
         });

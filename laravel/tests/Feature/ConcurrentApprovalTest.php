@@ -46,7 +46,7 @@ describe('Concurrent Approval Handling', function () {
     test('first approval wins when two staff attempt to approve simultaneously', function () {
         // Staff 1 approves first — succeeds
         $this->actingAs($this->staff1, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
                 'notes' => 'Approved by staff 1.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -55,7 +55,7 @@ describe('Concurrent Approval Handling', function () {
 
         // Staff 2 tries with the same old version — version mismatch → 409 conflict
         $this->actingAs($this->staff2, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
                 'notes' => 'Approved by staff 2.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -73,7 +73,7 @@ describe('Concurrent Approval Handling', function () {
     test('cannot approve a request that has already been rejected', function () {
         // Reject first
         $this->actingAs($this->staff1, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/reject", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/reject", [
                 'notes' => 'Does not meet requirements.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -81,7 +81,7 @@ describe('Concurrent Approval Handling', function () {
 
         // Attempt to approve the rejected request → 422 InvalidRequestStateException
         $this->actingAs($this->staff1, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
                 'notes' => 'Approving anyway.',
                 'version' => 2,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -90,14 +90,14 @@ describe('Concurrent Approval Handling', function () {
 
     test('cannot reject a request that has already been approved', function () {
         $this->actingAs($this->staff1, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
                 'notes' => 'Good to go.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
             ->assertStatus(200);
 
         $this->actingAs($this->staff1, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/reject", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/reject", [
                 'notes' => 'Changing mind.',
                 'version' => 2,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -110,7 +110,7 @@ describe('Concurrent Approval Handling', function () {
 
         // Client still has version 1 — version mismatch → 409
         $this->actingAs($this->staff1, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
                 'notes' => 'Approving with stale version.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -122,7 +122,7 @@ describe('Concurrent Approval Handling', function () {
         $this->serviceRequest->update(['status' => 'approved', 'version' => 2]);
 
         $this->actingAs($this->staff1, 'api')
-            ->patchJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
+            ->postJson("/api/service-requests/{$this->serviceRequest->id}/approve", [
                 'notes' => 'Trying to approve again',
                 'version' => 2,
             ], ['X-Tenant' => $this->tenant->slug])

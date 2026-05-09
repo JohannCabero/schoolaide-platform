@@ -46,7 +46,7 @@ describe('Authorization - Role Based Access Control', function () {
 
     test('admin can approve any service request', function () {
         $this->actingAs($this->admin, 'api')
-            ->patchJson("/api/service-requests/{$this->request->id}/approve", [
+            ->postJson("/api/service-requests/{$this->request->id}/approve", [
                 'notes' => 'Approved by admin.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -68,7 +68,7 @@ describe('Authorization - Role Based Access Control', function () {
 
     test('staff can approve only requests assigned to them', function () {
         $this->actingAs($this->staff, 'api')
-            ->patchJson("/api/service-requests/{$this->request->id}/approve", [
+            ->postJson("/api/service-requests/{$this->request->id}/approve", [
                 'notes' => 'All good.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -80,7 +80,7 @@ describe('Authorization - Role Based Access Control', function () {
         $otherStaff->assignRole(Role::where('name', 'staff')->where('tenant_id', $this->tenant->id)->first());
 
         $this->actingAs($otherStaff, 'api')
-            ->patchJson("/api/service-requests/{$this->request->id}/approve", [
+            ->postJson("/api/service-requests/{$this->request->id}/approve", [
                 'notes' => 'Trying to approve.',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])
@@ -119,7 +119,7 @@ describe('Authorization - Role Based Access Control', function () {
 
     test('student cannot approve or reject a service request', function () {
         $this->actingAs($this->studentUser, 'api')
-            ->patchJson("/api/service-requests/{$this->request->id}/approve", [
+            ->postJson("/api/service-requests/{$this->request->id}/approve", [
                 'notes' => 'Self-approving!',
                 'version' => 1,
             ], ['X-Tenant' => $this->tenant->slug])

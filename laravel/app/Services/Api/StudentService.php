@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Gate;
 
 class StudentService extends BaseService
 {
-    public function __construct(private readonly Student $student, private readonly AuditService $auditService) {}
+    public function __construct(private readonly Student $student) {}
 
     public function index(StudentRequest $request)
     {
@@ -70,12 +70,8 @@ class StudentService extends BaseService
             $student = $this->student->create(
                 array_merge($request->validated(), [
                     'tenant_id' => app('currentTenant')->id,
-                    'user_id'   => $request->user()->id,
                 ])
             );
-
-            $userId = auth('api')->id();
-            $this->auditService->log('created', $student, null, $student->toArray(), $userId);
 
             $this->code = 201;
             $this->invalidateCache($student->id);
@@ -90,12 +86,7 @@ class StudentService extends BaseService
             $student = $this->student->findOrFail($id);
             Gate::authorize('update', $student);
 
-            $oldStudent = $student->toArray();
-
             $student->update($request->validated());
-
-            $userId = auth('api')->id();
-            $this->auditService->log('updated', $student, $oldStudent, $student->fresh()->toArray(), $userId);
 
             $this->invalidateCache($student->id);
 
@@ -109,9 +100,6 @@ class StudentService extends BaseService
             $student = $this->student->findOrFail($id);
             Gate::authorize('delete', $student);
 
-            $userId = auth('api')->id();
-            $this->auditService->log('deleted', $student, $student->toArray(), null, $userId);
-
             $student->delete();
             $this->invalidateCache($id);
         });
@@ -122,10 +110,5 @@ class StudentService extends BaseService
         $tenantId = app('currentTenant')?->id;
 
         Cache::forget("tenant:{$tenantId}:student:{$id}");
-    }
-
-    public function invalidateAllStudentCache()
-    {
-        Cache::flush();
     }
 }

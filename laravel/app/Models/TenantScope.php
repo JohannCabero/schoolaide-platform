@@ -21,11 +21,15 @@ class TenantScope implements Scope
                     ->map(fn ($f) => ($f['class'] ?? '') . '::' . ($f['function'] ?? ''))
                     ->implode(' → '),
             ]);
+            $builder->whereRaw('0 = 1');
+
             return;
         }
 
         if ($tenantId !== null) {
             $builder->where($model->getTable() . '.tenant_id', $tenantId);
+        } else {
+            $builder->whereRaw('0 = 1');
         }
     }
 }

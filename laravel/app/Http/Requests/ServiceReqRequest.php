@@ -20,6 +20,13 @@ class ServiceReqRequest extends BaseRequest
                     'per_page' => ['sometimes', 'integer',],
                 ];
             case 'POST':
+                if ($this->is('api/service-requests/*/approve') || $this->is('api/service-requests/*/reject')) {
+                    return [
+                        'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
+                        'version' => ['required', 'integer', 'min:1'],
+                    ];
+                }
+
                 return [
                     'student_id' => ['required', 'integer', 'exists:students,id'],
                     'service_type_id' => ['required', 'integer', 'exists:service_types,id'],
@@ -34,16 +41,11 @@ class ServiceReqRequest extends BaseRequest
                     'assigned_to' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
                 ];
             case 'PATCH':
-                if ($this->is('api/service-requests/*/approve') || $this->is('api/service-requests/*/reject')) {
-                    return [
-                        'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
-                        'version' => ['required', 'integer', 'min:1'],
-                    ];
-                }
                 return [
                     'requested_date' => ['sometimes', 'date', 'after_or_equal:today'],
                     'remarks' => ['sometimes', 'nullable', 'string', 'max:1000'],
                     'assigned_to' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
+                    'version' => ['required', 'integer', 'min:1'],
                 ];
         }
     }

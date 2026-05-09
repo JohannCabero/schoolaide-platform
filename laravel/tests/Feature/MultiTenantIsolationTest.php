@@ -83,6 +83,7 @@ describe('Multi-Tenant Isolation', function () {
         $response = $this->actingAs($this->adminB, 'api')
             ->patchJson("/api/service-requests/{$this->requestA->id}", [
                 'remarks' => 'Hacked!',
+                'version' => 1,
             ], ['X-Tenant' => $this->tenantB->slug]);
 
         $response->assertStatus(404);

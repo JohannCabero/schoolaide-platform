@@ -60,12 +60,12 @@ describe('ServiceRequest Model Unit Tests', function () {
         ServiceRequest::factory()->forTenant($this->tenant)->create([
             'student_id' => $this->student->id,
             'service_type_id' => $this->serviceType->id,
-            'created_at' => now()->subDays(10),
+            'requested_date' => now()->subDays(10)->toDateString(),
         ]);
         ServiceRequest::factory()->forTenant($this->tenant)->create([
             'student_id' => $this->student->id,
             'service_type_id' => $this->serviceType->id,
-            'created_at' => now()->subDays(2),
+            'requested_date' => now()->subDays(2)->toDateString(),
         ]);
 
         $count = ServiceRequest::byDateRange(

@@ -73,10 +73,10 @@ class ServiceRequest extends Model
     public function scopeByDateRange($query, ?string $from, ?string $to)
     {
         if ($from) {
-            $query->whereDate('created_at', '>=', $from);
+            $query->whereDate('requested_date', '>=', $from);
         }
         if ($to) {
-            $query->whereDate('created_at', '<=', $to);
+            $query->whereDate('requested_date', '<=', $to);
         }
 
         return $query;
@@ -115,12 +115,5 @@ class ServiceRequest extends Model
         return $this->version === $expectedVersion;
     }
 
-    /**
-     * Increment version for optimistic locking after each write
-     */
-    public function incrementVersion(): void
-    {
-        $this->increment('version');
-        $this->refresh();
-    }
+
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ImportLogController;
 use App\Http\Controllers\Api\ServiceRequestController;
@@ -28,10 +29,12 @@ Route::middleware(['tenant', 'auth:api', 'tenant.user'])->group(function () {
 
     Route::apiResource('service-requests', ServiceRequestController::class)
         ->parameters(['service-requests' => 'id']);
-    Route::patch('service-requests/{id}/approve', [ServiceRequestController::class, 'approve']);
-    Route::patch('service-requests/{id}/reject', [ServiceRequestController::class, 'reject']);
+    Route::post('service-requests/{id}/approve', [ServiceRequestController::class, 'approve']);
+    Route::post('service-requests/{id}/reject', [ServiceRequestController::class, 'reject']);
 
     Route::get('imports', [ImportLogController::class, 'index']);
     Route::get('imports/{id}', [ImportLogController::class, 'show']);
     Route::post('imports', [ImportLogController::class, 'store']);
+
+    Route::get('audit-logs', [AuditLogController::class, 'index']);
 });
