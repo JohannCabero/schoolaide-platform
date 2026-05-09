@@ -41,8 +41,8 @@ class TenantService extends BaseService
             $this->setTenantPermissionScope($tenant->id);
 
             $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api']);
-            $staffRole = Role::create(['name' => 'staff', 'guard_name' => 'api']);
-            $studentRole = Role::create(['name' => 'student', 'guard_name' => 'api']);
+            Role::create(['name' => 'staff', 'guard_name' => 'api']);
+            Role::create(['name' => 'student', 'guard_name' => 'api']);
 
             $admin = User::create([
                 'tenant_id' => $tenant->id,

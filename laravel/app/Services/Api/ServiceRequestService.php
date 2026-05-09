@@ -9,6 +9,7 @@ use App\Http\Resources\ServiceRequestPagination;
 use App\Http\Resources\ServiceRequestResource;
 use App\Models\ServiceRequest;
 use App\Services\BaseService;
+use Illuminate\Support\Facades\Gate;
 
 class ServiceRequestService extends BaseService
 {
@@ -17,6 +18,8 @@ class ServiceRequestService extends BaseService
     public function index(ServiceReqRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
+            Gate::authorize('viewAny', ServiceRequest::class);
+
             $query = $this->serviceRequest->with(['student', 'serviceType', 'assignedTo', 'processedBy'])
                 ->byDateRange($request->input('date_from'), $request->input('date_to'));
 
@@ -49,6 +52,7 @@ class ServiceRequestService extends BaseService
     {
         return $this->executeFunction(function () use ($id) {
             $serviceRequest = $this->serviceRequest->findOrFail($id);
+            Gate::authorize('view', $serviceRequest);
 
             return new ServiceRequestResource($serviceRequest->load(['student', 'serviceType', 'assignedTo', 'processedBy']));
         });
@@ -57,6 +61,8 @@ class ServiceRequestService extends BaseService
     public function store(ServiceReqRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
+            Gate::authorize('create', ServiceRequest::class);
+
             $tenantId = app('currentTenant')->id;
             $userId = auth('api')->id();
 
@@ -75,6 +81,7 @@ class ServiceRequestService extends BaseService
         return $this->executeFunction(function () use ($request, $id) {
             $userId = auth('api')->id();
             $lockedServiceReq = $this->serviceRequest->lockForUpdate()->findOrFail($id);
+            Gate::authorize('update', $lockedServiceReq);
 
             if (! $lockedServiceReq->isPending()) {
                 throw new InvalidRequestStateException(
@@ -97,6 +104,7 @@ class ServiceRequestService extends BaseService
         return $this->executeFunction(function () use ($request, $id) {
             $userId = auth('api')->id();
             $lockedServiceReq = $this->serviceRequest->lockForUpdate()->findOrFail($id);
+            Gate::authorize('approve', $lockedServiceReq);
 
             if ($lockedServiceReq->version !== $request->version) {
                 throw new ConcurrencyConflictException(
@@ -131,6 +139,7 @@ class ServiceRequestService extends BaseService
         return $this->executeFunction(function () use ($request, $id) {
             $userId = auth('api')->id();
             $lockedServiceReq = $this->serviceRequest->lockForUpdate()->findOrFail($id);
+            Gate::authorize('reject', $lockedServiceReq);
 
             if ($lockedServiceReq->version !== $request->version) {
                 throw new ConcurrencyConflictException(
@@ -168,6 +177,7 @@ class ServiceRequestService extends BaseService
         return $this->executeFunction(function () use ($id) {
             $userId = auth('api')->id();
             $serviceReq = $this->serviceRequest->findOrFail($id);
+            Gate::authorize('delete', $serviceReq);
 
             $this->auditService->log('deleted', $serviceReq, $serviceReq->toArray(), null, $userId);
 

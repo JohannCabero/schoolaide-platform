@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StudentRequest extends BaseRequest
@@ -44,9 +43,10 @@ class StudentRequest extends BaseRequest
                     'last_name' => ['sometimes', 'filled', 'string',],
                     'email' => ['sometimes', 'filled', 'string', 'email', Rule::unique('students', 'email')->where('tenant_id', app('currentTenant')->id)],
                     'phone' => ['sometimes', 'string', 'phone:PH',],
-                    'birth_date' => ['sometimes', 'string', 'date',],
+                    'birth_date' => ['sometimes', 'string', 'date', 'before:today',],
                     'program' => ['sometimes', 'string',],
                     'year_level' => ['sometimes', 'string',],
+                    'status' => ['sometimes', 'string', 'in:active,inactive,graduated,suspended',],
                 ];
         }
     }

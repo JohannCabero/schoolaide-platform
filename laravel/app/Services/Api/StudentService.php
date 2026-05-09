@@ -8,6 +8,7 @@ use App\Http\Resources\StudentResource;
 use App\Models\Student;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 
 class StudentService extends BaseService
 {
@@ -16,6 +17,8 @@ class StudentService extends BaseService
     public function index(StudentRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
+            Gate::authorize('viewAny', Student::class);
+
             $query = Student::query();
 
             if ($request->filled('status')) {
@@ -53,6 +56,7 @@ class StudentService extends BaseService
                 3600,
                 fn() => $this->student->with('user')->findOrFail($id)
             );
+            Gate::authorize('view', $student);
 
             return new StudentResource($student);
         });
@@ -61,6 +65,8 @@ class StudentService extends BaseService
     public function store(StudentRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
+            Gate::authorize('create', Student::class);
+
             $student = $this->student->create(
                 array_merge($request->validated(), [
                     'tenant_id' => app('currentTenant')->id,
@@ -82,6 +88,8 @@ class StudentService extends BaseService
     {
         return $this->executeFunction(function () use ($request, $id) {
             $student = $this->student->findOrFail($id);
+            Gate::authorize('update', $student);
+
             $oldStudent = $student->toArray();
 
             $student->update($request->validated());
