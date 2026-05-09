@@ -37,21 +37,21 @@ class StudentService extends BaseService
 
             $query->orderBy($sortField, $sortDirection);
 
-            $perPage  = min((int) $request->input('per_page', 15), 100);
+            $perPage = min((int) $request->input('per_page', 15), 100);
             $students = $query->paginate($perPage);
 
             return new StudentPagination($students);
         });
     }
 
-    public function show(int $studentId)
+    public function show(int $id)
     {
-        return $this->executeFunction(function () use ($studentId) {
+        return $this->executeFunction(function () use ($id) {
             $tenantId = app('currentTenant')?->id;
             $student  = Cache::remember(
-                "tenant:{$tenantId}:student:{$studentId}",
+                "tenant:{$tenantId}:student:{$id}",
                 3600,
-                fn() => $this->student->with('user')->findOrFail($studentId)
+                fn() => $this->student->with('user')->findOrFail($id)
             );
 
             return new StudentResource($student);
@@ -78,10 +78,10 @@ class StudentService extends BaseService
         });
     }
 
-    public function update(StudentRequest $request, int $studentId)
+    public function update(StudentRequest $request, int $id)
     {
-        return $this->executeFunction(function () use ($request, $studentId) {
-            $student = $this->student->findOrFail($studentId);
+        return $this->executeFunction(function () use ($request, $id) {
+            $student = $this->student->findOrFail($id);
             $oldStudent = $student->toArray();
 
             $student->update($request->validated());

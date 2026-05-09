@@ -30,55 +30,55 @@ class TenantService extends BaseService
 
     public function registerTenant(TenantRequest $request)
     {
-        // return $this->executeFunction(function () use ($request) {
-        $tenant = Tenant::create([
-            'name' => $request->organization_name,
-            'slug' => $request->slug,
-            ...($request->domain ? ['domain' => $request->domain] : []),
-        ]);
+        return $this->executeFunction(function () use ($request) {
+            $tenant = Tenant::create([
+                'name' => $request->organization_name,
+                'slug' => $request->slug,
+                ...($request->domain ? ['domain' => $request->domain] : []),
+            ]);
 
-        app()->instance('currentTenant', $tenant);
-        $this->setTenantPermissionScope($tenant->id);
+            app()->instance('currentTenant', $tenant);
+            $this->setTenantPermissionScope($tenant->id);
 
-        $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api']);
-        $staffRole = Role::create(['name' => 'staff', 'guard_name' => 'api']);
-        $studentRole = Role::create(['name' => 'student', 'guard_name' => 'api']);
+            $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'api']);
+            $staffRole = Role::create(['name' => 'staff', 'guard_name' => 'api']);
+            $studentRole = Role::create(['name' => 'student', 'guard_name' => 'api']);
 
-        $admin = User::create([
-            'tenant_id' => $tenant->id,
-            'name' => $request->admin_name,
-            'email' => $request->admin_email,
-            'password' => Hash::make($request->admin_password),
-        ]);
+            $admin = User::create([
+                'tenant_id' => $tenant->id,
+                'name' => $request->admin_name,
+                'email' => $request->admin_email,
+                'password' => Hash::make($request->admin_password),
+            ]);
 
-        $admin->assignRole($adminRole);
+            $admin->assignRole($adminRole);
 
-        $adminId = $admin->id;
-        $this->auditService->log('created', $tenant, null, $tenant->toArray(), $adminId);
-        $this->auditService->log('created', $admin, null, $admin->toArray(), $adminId);
+            $adminId = $admin->id;
+            $this->auditService->log('created', $tenant, null, $tenant->toArray(), $adminId);
+            $this->auditService->log('created', $admin, null, $admin->toArray(), $adminId);
 
-        $this->code = 201;
-        $token = $admin->createToken('api-token')->accessToken;
+            $this->code = 201;
+            $token = $admin->createToken('api-token')->accessToken;
 
-        return [
-            'tenant' => [
-                'name' => $tenant->name,
-                'slug' => $tenant->slug,
-                'domain' => $tenant->domain,
-                'login_hint' => $tenant->domain
-                    ? "Requests to {$tenant->domain} are automatically routed to this tenant. You can also use 'X-Tenant: {$tenant->slug}'."
-                    : "Use header 'X-Tenant: {$tenant->slug}' for all subsequent requests.",
-            ],
-            'admin' => new UserResource($admin),
-            'token' => $token,
-        ];
-        // });
+            return [
+                'tenant' => [
+                    'name' => $tenant->name,
+                    'slug' => $tenant->slug,
+                    'domain' => $tenant->domain,
+                    'login_hint' => $tenant->domain
+                        ? "Requests to {$tenant->domain} are automatically routed to this tenant. You can also use 'X-Tenant: {$tenant->slug}'."
+                        : "Use header 'X-Tenant: {$tenant->slug}' for all subsequent requests.",
+                ],
+                'admin' => new UserResource($admin),
+                'token' => $token,
+            ];
+        });
     }
 
     public function update(TenantRequest $request)
     {
         return $this->executeFunction(function () use ($request) {
-            $tenant    = app('currentTenant');
+            $tenant = app('currentTenant');
             $oldTenant = $tenant->toArray();
             $userId = auth('api')->id();
 

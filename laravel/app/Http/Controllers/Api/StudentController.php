@@ -15,9 +15,9 @@ class StudentController extends Controller
         return $this->service->index($request);
     }
 
-    public function show(int $studentId)
+    public function show(int $id)
     {
-        return $this->service->show($studentId);
+        return $this->service->show($id);
     }
 
     public function store(StudentRequest $request)
@@ -25,8 +25,8 @@ class StudentController extends Controller
         return $this->service->store($request);
     }
 
-    public function update(StudentRequest $request, int $studentId)
+    public function update(StudentRequest $request, int $id)
     {
-        return $this->service->update($request, $studentId);
+        return $this->service->update($request, $id);
     }
 }
