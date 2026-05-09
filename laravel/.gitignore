@@ -17,12 +17,10 @@
 /storage/*.key
 /storage/pail
 /vendor
-/bootstrap
 /config
 /database/seeders
 /storage
 /resources
-/app/Providers
 Homestead.json
 Homestead.yaml
 Thumbs.db

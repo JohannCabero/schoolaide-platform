@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class AuthRequest extends BaseRequest
@@ -19,7 +18,7 @@ class AuthRequest extends BaseRequest
             case 'api/auth/register':
                 return [
                     'name' => ['required', 'string',],
-                    'email' => ['required', 'email', Rule::unique('students', 'email')->where('tenant_id', app('currentTenant')->id),],
+                    'email' => ['required', 'email', Rule::unique('users', 'email')->where('tenant_id', app('currentTenant')->id),],
                     'password' => ['required', 'string', 'min:8', 'confirmed'],
                     'role' => ['nullable', 'string', 'in:student,staff'],
                 ];

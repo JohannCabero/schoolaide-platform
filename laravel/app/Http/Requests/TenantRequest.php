@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class TenantRequest extends BaseRequest
@@ -48,7 +47,7 @@ class TenantRequest extends BaseRequest
                         'string',
                         'max:255',
                         'regex:/^(?!https?:\/\/)([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/',
-                        Rule::unique('tenants', 'domain'),
+                        Rule::unique('tenants', 'domain')->ignore(app('currentTenant')->id),
                     ],
                 ];
         }

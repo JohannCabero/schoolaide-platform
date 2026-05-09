@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ImportLogController;
 use App\Http\Controllers\Api\ServiceRequestController;
 use App\Http\Controllers\Api\StudentController;
 use App\Http\Controllers\Api\TenantController;
@@ -30,4 +31,8 @@ Route::middleware(['tenant', 'auth:api', 'tenant.user'])->group(function () {
         ->parameters(['service-requests' => 'id']);
     Route::patch('service-requests/{id}/approve', [ServiceRequestController::class, 'approve']);
     Route::patch('service-requests/{id}/reject', [ServiceRequestController::class, 'reject']);
+
+    Route::get('imports', [ImportLogController::class, 'index']);
+    Route::get('imports/{id}', [ImportLogController::class, 'show']);
+    Route::post('imports', [ImportLogController::class, 'store']);
 });
