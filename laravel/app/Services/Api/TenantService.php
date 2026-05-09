@@ -62,12 +62,13 @@ class TenantService extends BaseService
 
             return [
                 'tenant' => [
-                    'name' => $tenant->name,
-                    'slug' => $tenant->slug,
+                    'id'     => $tenant->id,
+                    'name'   => $tenant->name,
+                    'slug'   => $tenant->slug,
                     'domain' => $tenant->domain,
                     'login_hint' => $tenant->domain
-                        ? "Requests to {$tenant->domain} are automatically routed to this tenant. You can also use 'X-Tenant: {$tenant->slug}'."
-                        : "Use header 'X-Tenant: {$tenant->slug}' for all subsequent requests.",
+                        ? "Requests to {$tenant->domain} are automatically routed to this tenant. You can also use X-Tenant: {$tenant->slug}."
+                        : "Use header X-Tenant: {$tenant->slug} for all subsequent requests.",
                 ],
                 'admin' => new UserResource($admin),
                 'token' => $token,

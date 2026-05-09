@@ -103,6 +103,20 @@ class StudentService extends BaseService
         });
     }
 
+    public function destroy(int $id)
+    {
+        return $this->executeFunction(function () use ($id) {
+            $student = $this->student->findOrFail($id);
+            Gate::authorize('delete', $student);
+
+            $userId = auth('api')->id();
+            $this->auditService->log('deleted', $student, $student->toArray(), null, $userId);
+
+            $student->delete();
+            $this->invalidateCache($id);
+        });
+    }
+
     public function invalidateCache(int $id)
     {
         $tenantId = app('currentTenant')?->id;

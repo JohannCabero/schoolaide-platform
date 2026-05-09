@@ -100,6 +100,11 @@ class User extends Authenticatable
         return $this->hasRole('student');
     }
 
+    public function getPermissionsTeamId(): ?int
+    {
+        return app('currentTenant')?->id;
+    }
+
     /**
      * Override Spatie's getDefaultGuardName so it uses the API guard with Passport.
      */

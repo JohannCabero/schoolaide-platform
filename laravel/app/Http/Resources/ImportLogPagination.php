@@ -5,17 +5,12 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class StudentPagination extends ResourceCollection
+class ImportLogPagination extends ResourceCollection
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
-            'data' => StudentResource::collection($this->collection),
+            'data' => ImportLogResource::collection($this->collection),
             'links' => [
                 'first' => $this->url(1),
                 'last'  => $this->url($this->lastPage()),

@@ -99,15 +99,13 @@ class AuthService extends BaseService
 
     public function logout(Request $request)
     {
-        return $this->executeFunction(function () use ($request) {
-            $user   = $request->user();
-            $userId = $user->id;
+        $user = $request->user();
 
-            $user->token()->revoke();
+        if ($user) {
+            $user->tokens()->delete();
+            $this->auditService->log('logout', $user, null, null, $user->id);
+        }
 
-            $this->auditService->log('logout', $user, null, null, $userId);
-
-            return 'Logged out successfully.';
-        });
+        return response()->json(['message' => 'Logged out successfully.'], 200);
     }
 }

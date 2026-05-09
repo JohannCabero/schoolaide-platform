@@ -29,4 +29,9 @@ class StudentController extends Controller
     {
         return $this->service->update($request, $id);
     }
+
+    public function destroy(int $id)
+    {
+        return $this->service->destroy($id);
+    }
 }

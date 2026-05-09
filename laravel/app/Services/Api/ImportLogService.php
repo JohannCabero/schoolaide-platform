@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use App\Http\Requests\ImportLogRequest;
+use App\Http\Resources\ImportLogPagination;
 use App\Http\Resources\ImportLogResource;
 use App\Jobs\ProcessImportJob;
 use App\Models\ImportLog;
@@ -24,7 +25,7 @@ class ImportLogService extends BaseService
                 ->orderBy('created_at', 'desc')
                 ->paginate($perPage);
 
-            return ImportLogResource::collection($importLogs);
+            return new ImportLogPagination($importLogs);
         });
     }
 
@@ -59,6 +60,8 @@ class ImportLogService extends BaseService
             ]);
 
             ProcessImportJob::dispatch($importLog->id, $tenantId)->onQueue('imports');
+
+            $this->code = 202;
 
             return new ImportLogResource($importLog);
         });

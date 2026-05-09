@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Exceptions\ConcurrencyConflictException;
 use App\Exceptions\InvalidRequestStateException;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -18,12 +21,6 @@ class BaseService
     public function executeFunction(callable $function)
     {
         try {
-            $request = app(Request::class);
-            $routeId = $request->route('id');
-            $reqBody = $request->all();
-            $uriPath = $request->path();
-            $reqMethod = $request->getMethod();
-
             $this->result = DB::transaction(function () use ($function) {
                 $data = call_user_func($function);
 
@@ -65,6 +62,16 @@ class BaseService
             ]);
 
             return $this->normalizedResponse($this->code, 'Conflict', $this->result);
+        } catch (UniqueConstraintViolationException $e) {
+            $this->code = 422;
+            $this->result = 'A duplicate record already exists.';
+
+            return $this->normalizedResponse($this->code, 'Unprocessable Entity', $this->result);
+        } catch (ModelNotFoundException $e) {
+            $this->code = 404;
+            $this->result = 'Resource not found.';
+
+            return $this->normalizedResponse($this->code, 'Not Found', $this->result);
         } catch (\Throwable $e) {
             $this->code = 500;
             $this->result = $e->getMessage();
@@ -80,10 +87,18 @@ class BaseService
 
     protected function normalizedResponse($code, $message, $result)
     {
+        if ($code >= 200 && $code < 300 && $result instanceof ResourceCollection) {
+            $resolved = $result->resolve(request());
+            return response()->json(
+                array_merge(['code' => $code, 'message' => $message], $resolved),
+                $code
+            );
+        }
+
         return response()->json([
             'code' => $code,
             'message' => $message,
-            ...(($code >= 200 && $code < 300) ? ['result' => $result] : ['error' => $result])
+            ...(($code >= 200 && $code < 300) ? ['data' => $result] : ['error' => $result])
         ], $code);
     }
 }

@@ -24,8 +24,7 @@ Route::middleware(['tenant', 'auth:api', 'tenant.user'])->group(function () {
     Route::patch('tenant/profile', [TenantController::class, 'update']);
 
     Route::apiResource('students', StudentController::class)
-        ->parameters(['students' => 'id'])
-        ->except(['destroy']);
+        ->parameters(['students' => 'id']);
 
     Route::apiResource('service-requests', ServiceRequestController::class)
         ->parameters(['service-requests' => 'id']);

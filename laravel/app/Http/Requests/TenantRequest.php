@@ -41,7 +41,7 @@ class TenantRequest extends BaseRequest
                 ];
             case 'PATCH':
                 return [
-                    'organization_name' => ['required', 'string',],
+                    'organization_name' => ['sometimes', 'string'],
                     'domain' => [
                         'nullable',
                         'string',

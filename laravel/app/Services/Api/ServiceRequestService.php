@@ -67,8 +67,14 @@ class ServiceRequestService extends BaseService
             $userId = auth('api')->id();
 
             $serviceReq = $this->serviceRequest->create(
-                array_merge($request->validated(), ['tenant_id' => $tenantId])
+                array_merge($request->validated(), [
+                    'tenant_id' => $tenantId,
+                    'status' => 'pending',
+                    'version' => 1,
+                ])
             );
+
+            $this->code = 201;
 
             $this->auditService->log('created', $serviceReq, null, $serviceReq->toArray(), $userId);
 
@@ -104,13 +110,14 @@ class ServiceRequestService extends BaseService
         return $this->executeFunction(function () use ($request, $id) {
             $userId = auth('api')->id();
             $lockedServiceReq = $this->serviceRequest->lockForUpdate()->findOrFail($id);
-            Gate::authorize('approve', $lockedServiceReq);
 
             if ($lockedServiceReq->version !== $request->version) {
                 throw new ConcurrencyConflictException(
                     'The request was modified since you last viewed it. Please refresh and try again.'
                 );
             }
+
+            Gate::authorize('approve', $lockedServiceReq);
 
             if (! $lockedServiceReq->isPending()) {
                 throw new InvalidRequestStateException(
@@ -139,13 +146,14 @@ class ServiceRequestService extends BaseService
         return $this->executeFunction(function () use ($request, $id) {
             $userId = auth('api')->id();
             $lockedServiceReq = $this->serviceRequest->lockForUpdate()->findOrFail($id);
-            Gate::authorize('reject', $lockedServiceReq);
 
             if ($lockedServiceReq->version !== $request->version) {
                 throw new ConcurrencyConflictException(
                     'The request was modified since you last viewed it. Please refresh and try again.'
                 );
             }
+
+            Gate::authorize('reject', $lockedServiceReq);
 
             if (! $lockedServiceReq->isPending()) {
                 throw new InvalidRequestStateException(

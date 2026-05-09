@@ -34,9 +34,16 @@ class ServiceReqRequest extends BaseRequest
                     'assigned_to' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
                 ];
             case 'PATCH':
+                if ($this->is('api/service-requests/*/approve') || $this->is('api/service-requests/*/reject')) {
+                    return [
+                        'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
+                        'version' => ['required', 'integer', 'min:1'],
+                    ];
+                }
                 return [
-                    'notes' => ['sometimes', 'nullable', 'string', 'max:1000'],
-                    'version' => ['required', 'integer', 'min:1'],
+                    'requested_date' => ['sometimes', 'date', 'after_or_equal:today'],
+                    'remarks' => ['sometimes', 'nullable', 'string', 'max:1000'],
+                    'assigned_to' => ['sometimes', 'nullable', 'integer', 'exists:users,id'],
                 ];
         }
     }

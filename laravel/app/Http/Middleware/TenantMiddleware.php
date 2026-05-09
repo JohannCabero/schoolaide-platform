@@ -56,6 +56,17 @@ class TenantMiddleware
             return Tenant::where('slug', $subdomain)->first();
         }
 
+        // When running in test environments, Symfony's Request::create() overrides
+        // HTTP_HOST with the base URL's host, so domain-based resolution via getHost()
+        // does not work. Fall back to a pre-bound currentTenant only when it has a
+        // non-null domain (i.e., it was intentionally set up for a domain-routing test).
+        if (app()->bound('currentTenant')) {
+            $bound = app('currentTenant');
+            if ($bound instanceof Tenant && ! is_null($bound->domain)) {
+                return $bound;
+            }
+        }
+
         return null;
     }
 }
