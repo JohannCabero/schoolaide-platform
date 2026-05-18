@@ -13,14 +13,9 @@
 /.zed
 /auth.json
 /node_modules
-/public
 /storage/*.key
 /storage/pail
 /vendor
-/config
-/database/seeders
-/storage
-/resources
 Homestead.json
 Homestead.yaml
 Thumbs.db
