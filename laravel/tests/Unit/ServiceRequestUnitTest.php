@@ -41,16 +41,22 @@ describe('ServiceRequest Model Unit Tests', function () {
     });
 
     test('scopeByStatus filters correctly', function () {
-        ServiceRequest::factory()->forTenant($this->tenant)->count(2)->create([
-            'student_id' => $this->student->id,
-            'service_type_id' => $this->serviceType->id,
-            'status' => 'approved',
-        ]);
-        ServiceRequest::factory()->forTenant($this->tenant)->count(3)->create([
-            'student_id' => $this->student->id,
-            'service_type_id' => $this->serviceType->id,
-            'status' => 'pending',
-        ]);
+        ServiceRequest::factory()->forTenant($this->tenant)
+            ->count(2)
+            ->sequence(fn ($seq) => ['requested_date' => now()->addDays($seq->index + 1)->toDateString()])
+            ->create([
+                'student_id' => $this->student->id,
+                'service_type_id' => $this->serviceType->id,
+                'status' => 'approved',
+            ]);
+        ServiceRequest::factory()->forTenant($this->tenant)
+            ->count(3)
+            ->sequence(fn ($seq) => ['requested_date' => now()->addDays($seq->index + 3)->toDateString()])
+            ->create([
+                'student_id' => $this->student->id,
+                'service_type_id' => $this->serviceType->id,
+                'status' => 'pending',
+            ]);
 
         expect(ServiceRequest::byStatus('approved')->count())->toBe(2);
         expect(ServiceRequest::byStatus('pending')->count())->toBe(3);
