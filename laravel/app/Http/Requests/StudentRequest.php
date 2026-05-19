@@ -32,7 +32,7 @@ class StudentRequest extends BaseRequest
                     'phone' => ['sometimes', 'string', 'phone:PH',],
                     'birth_date' => ['sometimes', 'string', 'date', 'before:today',],
                     'program' => ['sometimes', 'string',],
-                    'year_level' => ['sometimes', 'string',],
+                    'year_level' => ['sometimes', 'integer',],
                     'status' => ['sometimes', 'string', 'in:active,inactive,graduated,suspended',],
                 ];
             case 'PATCH':

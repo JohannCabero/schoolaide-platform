@@ -84,7 +84,7 @@
             <label>Year Level</label>
           </td>
           <td style="padding: 8px 0;">
-            <input v-model="form.year_level" type="number" min="1" max="6" style="width: 100%; padding: 8px; border: 1px solid #ccc; box-sizing: border-box;" />
+            <input v-model="form.year_level" type="text" min="1" max="6" style="width: 100%; padding: 8px; border: 1px solid #ccc; box-sizing: border-box;" />
           </td>
         </tr>
         <tr>

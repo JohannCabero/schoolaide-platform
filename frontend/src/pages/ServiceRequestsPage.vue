@@ -36,12 +36,12 @@
 
       <div style="margin-bottom: 10px;">
         <label>Student ID <span style="color:red">*</span></label><br>
-        <input v-model="createForm.student_id" type="number" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
+        <input v-model="createForm.student_id" type="text" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
         <small style="color: #666;">Enter the student's ID number</small>
       </div>
       <div style="margin-bottom: 10px;">
         <label>Service Type ID <span style="color:red">*</span></label><br>
-        <input v-model="createForm.service_type_id" type="number" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
+        <input v-model="createForm.service_type_id" type="text" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
         <small style="color: #666;">Enter the service type ID</small>
       </div>
       <div style="margin-bottom: 10px;">
