@@ -29,7 +29,7 @@ describe('Student API', function () {
                 'email' => 'jose@test.com',
                 'status' => 'active',
                 'program' => 'BS History',
-                'year_level' => '4th Year',
+                'year_level' => '4',
             ], ['X-Tenant' => $this->tenant->slug])
             ->assertStatus(201)
             ->assertJsonPath('data.student_number', '2024-9001')
@@ -82,7 +82,6 @@ describe('Student API', function () {
             ->assertStatus(200)
             ->assertJsonCount(2, 'data');
     });
-
 });
 
 describe('Auth Endpoints', function () {
@@ -195,5 +194,4 @@ describe('Auth Endpoints', function () {
             ->assertStatus(200)
             ->assertJson(['message' => 'Logged out successfully.']);
     });
-
 });
