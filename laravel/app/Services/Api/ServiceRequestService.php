@@ -8,6 +8,8 @@ use App\Http\Requests\ServiceReqRequest;
 use App\Http\Resources\ServiceRequestPagination;
 use App\Http\Resources\ServiceRequestResource;
 use App\Models\ServiceRequest;
+use App\Models\ServiceType;
+use App\Models\Student;
 use App\Services\BaseService;
 use Illuminate\Support\Facades\Gate;
 
@@ -65,13 +67,19 @@ class ServiceRequestService extends BaseService
 
             $tenantId = app('currentTenant')->id;
 
-            $serviceReq = $this->serviceRequest->create(
-                array_merge($request->validated(), [
-                    'tenant_id' => $tenantId,
-                    'status' => 'pending',
-                    'version' => 1,
-                ])
-            );
+            $student = Student::where('student_number', $request->student_number)->firstOrFail();
+            $serviceType = ServiceType::where('code', $request->service_type_code)->firstOrFail();
+
+            $serviceReq = $this->serviceRequest->create([
+                'tenant_id' => $tenantId,
+                'student_id' => $student->id,
+                'service_type_id' => $serviceType->id,
+                'requested_date' => $request->requested_date,
+                'remarks' => $request->remarks,
+                'assigned_to' => $request->assigned_to,
+                'status' => 'pending',
+                'version' => 1,
+            ]);
 
             $this->code = 201;
 

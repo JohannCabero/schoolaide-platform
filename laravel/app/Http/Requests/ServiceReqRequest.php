@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ServiceReqRequest extends BaseRequest
 {
@@ -27,9 +28,17 @@ class ServiceReqRequest extends BaseRequest
                     ];
                 }
 
+                $tenantId = app('currentTenant')->id;
+
                 return [
-                    'student_id' => ['required', 'integer', 'exists:students,id'],
-                    'service_type_id' => ['required', 'integer', 'exists:service_types,id'],
+                    'student_number' => [
+                        'required', 'string',
+                        Rule::exists('students', 'student_number')->where('tenant_id', $tenantId),
+                    ],
+                    'service_type_code' => [
+                        'required', 'string',
+                        Rule::exists('service_types', 'code')->where('tenant_id', $tenantId),
+                    ],
                     'requested_date' => ['required', 'date', 'after_or_equal:today'],
                     'remarks' => ['nullable', 'string', 'max:1000'],
                     'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
@@ -53,8 +62,8 @@ class ServiceReqRequest extends BaseRequest
     public function messages(): array
     {
         return [
-            'student_id.exists' => 'The specified student does not exist.',
-            'service_type_id.exists' => 'The specified service type does not exist.',
+            'student_number.exists' => 'The specified student number does not exist.',
+            'service_type_code.exists' => 'The specified service type code does not exist.',
             'requested_date.after_or_equal' => 'The requested date must be today or a future date.',
         ];
     }

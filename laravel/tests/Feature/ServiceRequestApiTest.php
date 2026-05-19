@@ -29,10 +29,10 @@ describe('Service Request API', function () {
     test('admin can create a service request', function () {
         $this->actingAs($this->admin, 'api')
             ->postJson('/api/service-requests', [
-                'student_id' => $this->student->id,
-                'service_type_id' => $this->serviceType->id,
-                'requested_date' => now()->addDays(3)->toDateString(),
-                'remarks' => 'Urgently needed.',
+                'student_number'   => $this->student->student_number,
+                'service_type_code' => $this->serviceType->code,
+                'requested_date'   => now()->addDays(3)->toDateString(),
+                'remarks'          => 'Urgently needed.',
             ], ['X-Tenant' => $this->tenant->slug])
             ->assertStatus(201)
             ->assertJsonStructure(['data' => ['id', 'status', 'student', 'service_type', 'version']]);
@@ -41,9 +41,9 @@ describe('Service Request API', function () {
     test('creates a service request with status pending by default', function () {
         $this->actingAs($this->admin, 'api')
             ->postJson('/api/service-requests', [
-                'student_id' => $this->student->id,
-                'service_type_id' => $this->serviceType->id,
-                'requested_date' => now()->addDays(5)->toDateString(),
+                'student_number'   => $this->student->student_number,
+                'service_type_code' => $this->serviceType->code,
+                'requested_date'   => now()->addDays(5)->toDateString(),
             ], ['X-Tenant' => $this->tenant->slug])
             ->assertJsonPath('data.status', 'pending');
     });
@@ -59,9 +59,9 @@ describe('Service Request API', function () {
 
         $this->actingAs($this->admin, 'api')
             ->postJson('/api/service-requests', [
-                'student_id' => $this->student->id,
-                'service_type_id' => $this->serviceType->id,
-                'requested_date' => $date,
+                'student_number'   => $this->student->student_number,
+                'service_type_code' => $this->serviceType->code,
+                'requested_date'   => $date,
             ], ['X-Tenant' => $this->tenant->slug])
             ->assertStatus(422);
     });
@@ -99,14 +99,14 @@ describe('Service Request API', function () {
         expect($statuses)->toBe(['approved']);
     });
 
-    test('validation fails when student_id is missing', function () {
+    test('validation fails when student_number is missing', function () {
         $this->actingAs($this->admin, 'api')
             ->postJson('/api/service-requests', [
-                'service_type_id' => $this->serviceType->id,
+                'service_type_code' => $this->serviceType->code,
                 'requested_date' => now()->addDay()->toDateString(),
             ], ['X-Tenant' => $this->tenant->slug])
             ->assertStatus(422)
-            ->assertJsonValidationErrors(['student_id']);
+            ->assertJsonValidationErrors(['student_number']);
     });
 
     test('response format matches API specification', function () {
