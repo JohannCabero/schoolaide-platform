@@ -118,7 +118,9 @@ export default {
         this.meta = res.data.meta
       } catch (err) {
         console.log('fetch students error', err)
-        this.errorMsg = 'Failed to load students.'
+        this.errorMsg = err.response?.status === 401
+          ? 'Session expired. Please log in again.'
+          : 'Failed to load students.'
       } finally {
         this.loading = false
       }

@@ -24,7 +24,7 @@ api.interceptors.request.use(config => {
   return config
 })
 
-// if 401 redirect to login
+// if 401, emit event so App.vue can handle logout via router
 api.interceptors.response.use(
   response => response,
   error => {
@@ -32,7 +32,7 @@ api.interceptors.response.use(
       localStorage.removeItem('token')
       localStorage.removeItem('tenant')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      window.dispatchEvent(new CustomEvent('auth:logout'))
     }
     return Promise.reject(error)
   }

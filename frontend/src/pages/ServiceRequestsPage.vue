@@ -197,7 +197,9 @@ export default {
         this.meta = res.data.meta
       } catch (err) {
         console.log('fetch requests error', err)
-        this.errorMsg = 'Failed to load service requests.'
+        this.errorMsg = err.response?.status === 401
+          ? 'Session expired. Please log in again.'
+          : 'Failed to load service requests.'
       } finally {
         this.loading = false
       }
