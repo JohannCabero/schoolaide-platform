@@ -55,16 +55,11 @@ Or via CLI:
 mysql -u root -e "CREATE DATABASE schoolaide_platform CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 ```
 
-### 4. Run migrations and seed
+### 4. Run migrations
 
 ```bash
 php artisan migrate
-php artisan db:seed
 ```
-
-This creates two demo tenants:
-- `greenfield` — `admin@greenfield.com` / `password`
-- `riverside`  — `admin@riverside.com`  / `password`
 
 ### 5. Install Laravel Passport
 
@@ -72,14 +67,22 @@ This creates two demo tenants:
 php artisan passport:install
 ```
 
-### 6. Start the development server
+### 6. Seed the database
+
+> **Required before starting the server.** The seeder populates service types that the application depends on at runtime.
+
+```bash
+php artisan db:seed
+```
+
+### 7. Start the development server
 
 ```bash
 php artisan serve
 # API available at http://localhost:8000
 ```
 
-### 7. Start the queue worker (required for Excel imports)
+### 8. Start the queue worker (required for Excel imports)
 
 Open a second terminal:
 

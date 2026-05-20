@@ -35,14 +35,14 @@
       <div v-if="createError" style="color: red; margin-bottom: 10px;">{{ createError }}</div>
 
       <div style="margin-bottom: 10px;">
-        <label>Student ID <span style="color:red">*</span></label><br>
-        <input v-model="createForm.student_id" type="text" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
-        <small style="color: #666;">Enter the student's ID number</small>
+        <label>Student Number <span style="color:red">*</span></label><br>
+        <input v-model="createForm.student_number" type="text" placeholder="e.g. 2024-0001" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
+        <small style="color: #666;">Enter the student's number</small>
       </div>
       <div style="margin-bottom: 10px;">
-        <label>Service Type ID <span style="color:red">*</span></label><br>
-        <input v-model="createForm.service_type_id" type="text" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
-        <small style="color: #666;">Enter the service type ID</small>
+        <label>Service Type Code <span style="color:red">*</span></label><br>
+        <input v-model="createForm.service_type_code" type="text" placeholder="e.g. TRANSCRIPT" style="width: 100%; padding: 7px; border: 1px solid #ccc; box-sizing: border-box;" />
+        <small style="color: #666;">Enter the service type code</small>
       </div>
       <div style="margin-bottom: 10px;">
         <label>Requested Date <span style="color:red">*</span></label><br>
@@ -164,8 +164,8 @@ export default {
       creating: false,
       createError: '',
       createForm: {
-        student_id: '',
-        service_type_id: '',
+        student_number: '',
+        service_type_code: '',
         requested_date: '',
         remarks: ''
       },
@@ -210,8 +210,8 @@ export default {
     async createRequest() {
       this.createError = ''
 
-      if (!this.createForm.student_id || !this.createForm.service_type_id || !this.createForm.requested_date) {
-        this.createError = 'Student ID, Service Type ID, and Requested Date are required.'
+      if (!this.createForm.student_number || !this.createForm.service_type_code || !this.createForm.requested_date) {
+        this.createError = 'Student Number, Service Type Code, and Requested Date are required.'
         return
       }
 
@@ -220,7 +220,7 @@ export default {
         await api.post('/service-requests', this.createForm)
         alert('Service request created!')
         this.showCreateForm = false
-        this.createForm = { student_id: '', service_type_id: '', requested_date: '', remarks: '' }
+        this.createForm = { student_number: '', service_type_code: '', requested_date: '', remarks: '' }
         this.fetchRequests()
       } catch (err) {
         console.log('create request error', err)

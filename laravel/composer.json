@@ -44,6 +44,7 @@
             "@php artisan key:generate",
             "@php artisan migrate --force",
             "@php artisan passport:install",
+            "@php artisan db:seed",
             "npm install",
             "npm run build"
         ],
